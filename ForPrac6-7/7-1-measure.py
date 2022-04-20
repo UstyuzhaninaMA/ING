@@ -39,7 +39,6 @@ def adc():
     return bin2dec(list)
 
 
-
 try:
     data = []
 
@@ -49,7 +48,7 @@ try:
     
     val = 0
 
-    while(val <= 255 * 0.2):
+    while(val <= 255 * 0.9):
         val = adc()
         data.append(val)
 
@@ -73,19 +72,20 @@ try:
     endDischargeTime = time.time()
     finishTime = endDischargeTime - startChargeTime
         
-    
+
     with open("7-1_data.txt", "w") as outfile:
         outfile.write("\n".join([str(item) for item in data]))
 
     with open("7-1_settings.txt", "w") as outfile:
         outfile.write("period(s): {:.3f}\n".format(finishTime / len(data)))
+        outfile.write("frequency(1/s): {:.3f}\n".format(1/(finishTime / len(data))))
         outfile.write("quant step: {:.5f} V\n".format(3.3 / 256))
-        outfile.write("charge time: {:.3f} seconds\n".format(chargeTime))    
+        outfile.write("charge time: {:.3f} seconds\n".format(chargeTime))   
 
+    plt.plot(data)
+    plt.show()
 finally:
     GPIO.output(dac, 0)
     GPIO.output(leds, 0)
     GPIO.cleanup()
 
-plt.plot(data)
-plt.show()
