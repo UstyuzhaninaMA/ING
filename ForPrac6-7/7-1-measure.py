@@ -9,6 +9,7 @@ comp = 4
 troyka = 17
 
 GPIO.setmode(GPIO.BCM)
+
 GPIO.setup(leds, GPIO.OUT)
 GPIO.setup(dac, GPIO.OUT)
 GPIO.setup(troyka, GPIO.OUT)
@@ -31,22 +32,24 @@ def adc():
     for i in range(0, 8):
         list[i] = 1
         GPIO.output(dac, list)
-        time.sleep(0.001)
+        time.sleep(0.005)
 
         if(GPIO.input(comp) == 0):
             list[i] = 0
     return bin2dec(list)
 
-data = []
+
 
 try:
-    start_time = time.time()
+    data = []
+
+    startChargeTime = time.time()
 
     GPIO.output(17, 1)
     
     val = 0
 
-    while(val <= 255 * 0.9):
+    while(val <= 255 * 0.2):
         val = adc()
         data.append(val)
 
@@ -55,7 +58,7 @@ try:
         GPIO.output(leds, dec2bin(val))
 
     endChargeTime = time.time()
-    charge_time = endChargeTime - start_time
+    chargeTime = endChargeTime - startChargeTime
     
     GPIO.output(17, 0)
 
@@ -68,8 +71,17 @@ try:
         GPIO.output(leds, dec2bin(val))
     
     endDischargeTime = time.time()
-    finish_time = endDischargeTime - start_time
+    finishTime = endDischargeTime - startChargeTime
         
+    
+    with open("7-1_data.txt", "w") as outfile:
+        outfile.write("\n".join([str(item) for item in data]))
+
+    with open("7-1_settings.txt", "w") as outfile:
+        outfile.write("period(s): {:.3f}\n".format(finishTime / len(data)))
+        outfile.write("quant step: {:.5f} V\n".format(3.3 / 256))
+        outfile.write("charge time: {:.3f} seconds\n".format(chargeTime))    
+
 finally:
     GPIO.output(dac, 0)
     GPIO.output(leds, 0)
@@ -77,13 +89,3 @@ finally:
 
 plt.plot(data)
 plt.show()
-
-data_str = [str(item) for item in data]
-
-with open("7-1_data.txt", "w") as outfile:
-    outfile.write("\n".join(data_str))
-
-with open("7-1_settings.txt", "w") as outfile:
-    outfile.write("period s\n".format(finish_time / len(data)))
-    outfile.write("quant step: {:.5f} V\n".format(3.3 / 256))
-    outfile.write("charge time: {:.3f} seconds\n".format(charge_time))
