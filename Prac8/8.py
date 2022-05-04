@@ -1,4 +1,4 @@
-iimport matplotlib.pyplot as plt # импортируем библитеки
+import matplotlib.pyplot as plt # импортируем библитеки
 import numpy as np
 
 def read_settings(f_name): # функция чтения данных из файла и возврачения их в нужном типе

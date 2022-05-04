@@ -1,0 +1,4 @@
+period(s): 0.041
+frequency(1/s): 24.275
+quant step: 0.01289 V
+charge time: 25.209 seconds
